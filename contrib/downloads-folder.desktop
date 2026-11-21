@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Downloads
+Name[zh_CN]=下载
+Comment=Open the Downloads folder
+Comment[zh_CN]=打开下载文件夹
+Exec=dolphin /home/acear/Downloads
+Icon=folder-download
+Terminal=false
+Categories=System;FileManager;

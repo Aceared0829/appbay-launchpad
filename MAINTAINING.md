@@ -42,7 +42,12 @@ with Plasma scripting so the existing MacTahoe top bar and Dock remain intact.
   global shortcut `F4` (`activate widget 58`).
 - Bottom Dock: widget `59` (`Plasma.AppBay`), leftmost, icon
   `appbay-launchpad-grid` (macOS Big Sur-style dark squircle with a 3x3
-  colored grid); panel order is `59;31`.
+  colored grid); then widget `31` (`org.kde.plasma.icontasks`), widget `60`
+  (`org.kde.plasma.marginsseparator`) and widget `61`
+  (`org.kde.plasma.trash`). Panel order is `59;31;60;61`.
+- Dock launchers: Dolphin, Chrome, Konsole, System Settings and the
+  `downloads-folder.desktop` entry from `contrib/` (copy it to
+  `~/.local/share/applications/`).
 - Both instances use 7x5 pages and `systemActionsButtons=false`.
 - Mouse wheels that report both `pixelDelta` and `angleDelta` are handled as
   discrete notches; one notch flips one page and fast wheels can skip pages.
