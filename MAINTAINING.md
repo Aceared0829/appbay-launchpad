@@ -36,6 +36,18 @@ systemctl --user restart plasma-plasmashell.service
 The panel integration is intentionally not automated here. It is applied
 with Plasma scripting so the existing MacTahoe top bar and Dock remain intact.
 
+## Current MacTahoe layout
+
+- Top bar: widget `58` (`Plasma.AppBay`), leftmost, icon `start-here`,
+  global shortcut `F4` (`activate widget 58`).
+- Bottom Dock: widget `59` (`Plasma.AppBay`), leftmost, icon
+  `appbay-launchpad`; panel order is `59;31`.
+- Both instances use 7x5 pages and `systemActionsButtons=false`.
+- Mouse wheels that report both `pixelDelta` and `angleDelta` are handled as
+  discrete notches; one notch flips one page and fast wheels can skip pages.
+- Page animation is 200 ms for one page, +70 ms per extra page, capped at
+  420 ms (`Easing.OutCubic`).
+
 ## Uninstall
 
 ```bash
