@@ -40,7 +40,7 @@
       <default></default>
     </entry>
     <entry name="systemActionsButtons" type="Bool">
-      <default>true</default>
+      <default>false</default>
     </entry>
   </group>
 

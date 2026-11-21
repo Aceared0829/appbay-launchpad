@@ -8,6 +8,9 @@
             },
             {
                 "Name": "nicolasdesenv (fork)"
+            },
+            {
+                "Name": "Aceared0829 (MacTahoe/CachyOS maintenance)"
             }
         ],
         "Name": "AppBay Launchpad",
@@ -20,8 +23,8 @@
         "ServiceTypes": [
             "Plasma/Applet"
         ],
-        "Version": "0.2.7-launchpad.4",
-        "Website": "https://github.com/nicolasdesenv/appbay-launchpad"
+        "Version": "0.2.7-launchpad.4+mactahoe.1",
+        "Website": "https://github.com/Aceared0829/appbay-launchpad"
     },
     "X-Plasma-Provides": [
         "org.kde.plasma.launchermenu"
