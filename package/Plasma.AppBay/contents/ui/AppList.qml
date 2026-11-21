@@ -141,8 +141,12 @@ FocusScope {
 
     function goToPage(p) {
         p = Math.max(0, Math.min(totalPages - 1, p))
-        if (p !== kicker.currentPage)
+        if (p !== kicker.currentPage) {
+            // saltos de várias páginas ganham um pouco mais de tempo, mas continuam curtos
+            var dist = Math.abs(p - kicker.currentPage)
+            pageAnim.duration = Math.min(330, 150 + (dist - 1) * 60)
             kicker.currentPage = p
+        }
     }
 
     function canSwipe() {
@@ -169,14 +173,29 @@ FocusScope {
 
     // termina o arrasto de página: decide pela distância ou pela velocidade (flick)
     function swipeFinish(dx, velocity) {
-        var target = kicker.currentPage
-        if (dx < -width * 0.12 || velocity < -0.5)
-            target++
-        else if (dx > width * 0.12 || velocity > 0.5)
-            target--
+        var pages = Math.round(-dx / Math.max(1, width))
+        if (pages === 0) {
+            if (dx < -width * 0.12 || velocity < -0.5)
+                pages = 1
+            else if (dx > width * 0.12 || velocity > 0.5)
+                pages = -1
+        }
+        var target = kicker.currentPage + pages
         swiping = false
         swipeOffset = 0
         goToPage(target)
+    }
+
+    // limita o deslocamento do scroll a uma página; além disso aplica resistência,
+    // para um gesto rápido não arrastar a grade por várias páginas e voltar de repente
+    function wheelOffset(d) {
+        var max = Math.max(1, width)
+        var next = swipeOffset + d
+        if (next > max)
+            next = max + (next - max) * 0.15
+        else if (next < -max)
+            next = -max + (next + max) * 0.15
+        return next
     }
 
     function swipeEnd(sceneX) {
@@ -191,11 +210,10 @@ FocusScope {
     property real wheelVelocity: 0
     property double lastWheelTime: 0
     property real wheelAccum: 0
-    property double lastWheelFlip: 0
 
     Timer {
         id: wheelEndTimer
-        interval: 110
+        interval: 80
         onTriggered: rootScope.swipeFinish(rootScope.swipeOffset, rootScope.wheelVelocity)
     }
 
@@ -216,21 +234,23 @@ FocusScope {
             var dt = Math.max(1, now - lastWheelTime)
             wheelVelocity = 0.6 * wheelVelocity + 0.4 * (d / dt)
             lastWheelTime = now
-            swipeOffset = rubber(swipeOffset + d)
+            swipeOffset = wheelOffset(d)
             wheelEndTimer.restart()
         } else {
             // roda do mouse: uma página por "clique" de roda
             var a = Math.abs(wheel.angleDelta.x) > Math.abs(wheel.angleDelta.y) ? wheel.angleDelta.x : wheel.angleDelta.y
-            var t = Date.now()
-            if (t - lastWheelFlip < 250) {
+            if (a === 0)
+                return
+            // inverteu o sentido: recomeça a acumulação
+            if ((a > 0) !== (wheelAccum > 0))
                 wheelAccum = 0
-            } else {
-                wheelAccum += a
-                if (Math.abs(wheelAccum) >= 120) {
-                    goToPage(wheelAccum > 0 ? kicker.currentPage - 1 : kicker.currentPage + 1)
-                    wheelAccum = 0
-                    lastWheelFlip = t
-                }
+            wheelAccum += a
+            // um evento pode trazer vários "cliques" (roda rápida): pula direto,
+            // em vez de obrigar a grade a passar por cada página intermediária
+            var steps = Math.floor(Math.abs(wheelAccum) / 120)
+            if (steps > 0) {
+                goToPage(kicker.currentPage + (wheelAccum > 0 ? -steps : steps))
+                wheelAccum -= (wheelAccum > 0 ? 120 : -120) * steps
             }
         }
     }
@@ -925,7 +945,7 @@ FocusScope {
 
             Behavior on x {
                 enabled: rootScope.pageAnimEnabled && !rootScope.swiping
-                NumberAnimation { id: pageAnim; duration: 380; easing.type: Easing.OutCubic }
+                NumberAnimation { id: pageAnim; duration: 220; easing.type: Easing.OutQuart }
             }
             Behavior on opacity {
                 NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
