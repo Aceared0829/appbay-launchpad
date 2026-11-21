@@ -186,15 +186,15 @@ FocusScope {
         goToPage(target)
     }
 
-    // limita o deslocamento do scroll a uma página; além disso aplica resistência,
-    // para um gesto rápido não arrastar a grade por várias páginas e voltar de repente
+    // permite atravessar várias páginas num gesto; só resiste além da primeira/última
     function wheelOffset(d) {
-        var max = Math.max(1, width)
+        var lo = -(totalPages - 1 - kicker.currentPage) * width
+        var hi = kicker.currentPage * width
         var next = swipeOffset + d
-        if (next > max)
-            next = max + (next - max) * 0.15
-        else if (next < -max)
-            next = -max + (next + max) * 0.15
+        if (next > hi)
+            next = hi + (next - hi) * 0.2
+        else if (next < lo)
+            next = lo + (next - lo) * 0.2
         return next
     }
 
@@ -235,7 +235,14 @@ FocusScope {
             wheelVelocity = 0.6 * wheelVelocity + 0.4 * (d / dt)
             lastWheelTime = now
             swipeOffset = wheelOffset(d)
-            wheelEndTimer.restart()
+            // gesto rápido: vira a página assim que passa de meia tela, sem esperar
+            // o fim do gesto — o restante do scroll já continua na página seguinte
+            if (Math.abs(swipeOffset) >= width * 0.5) {
+                wheelEndTimer.stop()
+                swipeFinish(swipeOffset, wheelVelocity)
+            } else {
+                wheelEndTimer.restart()
+            }
         } else {
             // roda do mouse: uma página por "clique" de roda
             var a = Math.abs(wheel.angleDelta.x) > Math.abs(wheel.angleDelta.y) ? wheel.angleDelta.x : wheel.angleDelta.y
