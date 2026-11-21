@@ -144,7 +144,7 @@ FocusScope {
         if (p !== kicker.currentPage) {
             // saltos de várias páginas ganham um pouco mais de tempo, mas continuam curtos
             var dist = Math.abs(p - kicker.currentPage)
-            pageAnim.duration = Math.min(330, 150 + (dist - 1) * 60)
+            pageAnim.duration = Math.min(420, 200 + (dist - 1) * 70)
             kicker.currentPage = p
         }
     }
@@ -222,7 +222,23 @@ FocusScope {
         if (!canSwipe() || pointerMode === 2)
             return
         var px = wheel.pixelDelta
-        if (px.x !== 0 || px.y !== 0) {
+        var ax = wheel.angleDelta.x
+        var ay = wheel.angleDelta.y
+        var ang = Math.abs(ax) >= Math.abs(ay) ? ax : ay
+        // roda do mouse manda angleDelta; alguns mouses também mandam pixelDelta,
+        // então o teste de angleDelta vem primeiro
+        if (ang !== 0) {
+            // roda do mouse: cada "clique" vale uma página, e um evento rápido
+            // pode trazer vários cliques de uma vez
+            if ((ang > 0) !== (wheelAccum > 0))
+                wheelAccum = 0
+            wheelAccum += ang
+            var steps = Math.floor(Math.abs(wheelAccum) / 120)
+            if (steps > 0) {
+                goToPage(kicker.currentPage + (ang > 0 ? -steps : steps))
+                wheelAccum -= (ang > 0 ? 120 : -120) * steps
+            }
+        } else if (px.x !== 0 || px.y !== 0) {
             var d = Math.abs(px.x) >= Math.abs(px.y) ? px.x : px.y
             var now = Date.now()
             if (!swiping) {
@@ -242,22 +258,6 @@ FocusScope {
                 swipeFinish(swipeOffset, wheelVelocity)
             } else {
                 wheelEndTimer.restart()
-            }
-        } else {
-            // roda do mouse: uma página por "clique" de roda
-            var a = Math.abs(wheel.angleDelta.x) > Math.abs(wheel.angleDelta.y) ? wheel.angleDelta.x : wheel.angleDelta.y
-            if (a === 0)
-                return
-            // inverteu o sentido: recomeça a acumulação
-            if ((a > 0) !== (wheelAccum > 0))
-                wheelAccum = 0
-            wheelAccum += a
-            // um evento pode trazer vários "cliques" (roda rápida): pula direto,
-            // em vez de obrigar a grade a passar por cada página intermediária
-            var steps = Math.floor(Math.abs(wheelAccum) / 120)
-            if (steps > 0) {
-                goToPage(kicker.currentPage + (wheelAccum > 0 ? -steps : steps))
-                wheelAccum -= (wheelAccum > 0 ? 120 : -120) * steps
             }
         }
     }
@@ -952,7 +952,7 @@ FocusScope {
 
             Behavior on x {
                 enabled: rootScope.pageAnimEnabled && !rootScope.swiping
-                NumberAnimation { id: pageAnim; duration: 220; easing.type: Easing.OutQuart }
+                NumberAnimation { id: pageAnim; duration: 260; easing.type: Easing.OutCubic }
             }
             Behavior on opacity {
                 NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
