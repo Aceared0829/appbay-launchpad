@@ -41,7 +41,8 @@ with Plasma scripting so the existing MacTahoe top bar and Dock remain intact.
 - Top bar: widget `58` (`Plasma.AppBay`), leftmost, icon `start-here`,
   global shortcut `F4` (`activate widget 58`).
 - Bottom Dock: widget `59` (`Plasma.AppBay`), leftmost, icon
-  `appbay-launchpad`; panel order is `59;31`.
+  `appbay-launchpad-grid` (macOS Big Sur-style dark squircle with a 3x3
+  colored grid); panel order is `59;31`.
 - Both instances use 7x5 pages and `systemActionsButtons=false`.
 - Mouse wheels that report both `pixelDelta` and `angleDelta` are handled as
   discrete notches; one notch flips one page and fast wheels can skip pages.
